@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>র‍্যান্ডম প্রশ্ন ও অপশন MCQ</title>
+<style>
+    body { font-family: 'Kalpurush', Arial, sans-serif; background-color: #f0f2f5; padding: 20px; }
+    .quiz-wrapper { max-width: 600px; margin: 0 auto; }
+    
+    .question-card {
+        background: white;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .question-text { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
+    
+    .options-container { display: flex; flex-direction: column; gap: 10px; }
+
+    .option-btn {
+        width: 100%; padding: 12px; border: 2px solid #e0e0e0;
+        border-radius: 8px; background-color: #fff; cursor: pointer;
+        text-align: left; font-size: 16px; transition: 0.2s;
+    }
+    .option-btn.selected { border-color: #007bff; background-color: #e7f1ff; color: #0056b3; }
+
+    .correct-answer { background-color: #d4edda !important; border-color: #28a745 !important; color: #155724 !important; }
+    .correct-answer::after { content: " ✔"; float: right; font-weight: bold; }
+
+    .wrong-answer { background-color: #f8d7da !important; border-color: #dc3545 !important; color: #721c24 !important; }
+    .wrong-answer::after { content: " ✖"; float: right; font-weight: bold; }
+
+    .submit-btn {
+        display: block; width: 100%; padding: 15px;
+        background-color: #007bff; color: white;
+        font-size: 20px; border: none; border-radius: 8px;
+        cursor: pointer; margin-top: 20px;
+    }
+    .submit-btn:hover { background-color: #0056b3; }
+
+    #result-box {
+        margin-top: 20px; padding: 20px; background-color: #333;
+        color: white; text-align: center; border-radius: 8px;
+        font-size: 22px; display: none;
+    }
+</style>
+</head>
+<body>
+
+<div class="quiz-wrapper">
+
+    <div id="question-list">
+        
+        <div class="question-card" id="q1" data-correct="2"> 
+            <div class="question-text"><span class="q-no"></span>. বাংলাদেশের জাতীয় ফলের নাম কী?</div>
+            <div class="options-container">
+                <button class="option-btn" data-val="1" onclick="selectOption(this)">আম</button>
+                <button class="option-btn" data-val="2" onclick="selectOption(this)">কাঁঠাল</button> <button class="option-btn" data-val="3" onclick="selectOption(this)">লিচু</button>
+                <button class="option-btn" data-val="4" onclick="selectOption(this)">জাম</button>
+            </div>
+        </div>
+
+        <div class="question-card" id="q2" data-correct="3">
+            <div class="question-text"><span class="q-no"></span>. মানুষের শরীরে হাড়ের সংখ্যা কত?</div>
+            <div class="options-container">
+                <button class="option-btn" data-val="1" onclick="selectOption(this)">২০৫ টি</button>
+                <button class="option-btn" data-val="2" onclick="selectOption(this)">২০৮ টি</button>
+                <button class="option-btn" data-val="3" onclick="selectOption(this)">২০৬ টি</button> <button class="option-btn" data-val="4" onclick="selectOption(this)">২০১ টি</button>
+            </div>
+        </div>
+
+        <div class="question-card" id="q3" data-correct="1">
+            <div class="question-text"><span class="q-no"></span>. সূর্য কোন দিকে ওঠে?</div>
+            <div class="options-container">
+                <button class="option-btn" data-val="1" onclick="selectOption(this)">পূর্ব</button> <button class="option-btn" data-val="2" onclick="selectOption(this)">পশ্চিম</button>
+                <button class="option-btn" data-val="3" onclick="selectOption(this)">উত্তর</button>
+                <button class="option-btn" data-val="4" onclick="selectOption(this)">দক্ষিণ</button>
+            </div>
+        </div>
+
+    </div> 
+    <button class="submit-btn" onclick="submitQuiz()">ফলাফল দেখুন</button>
+    <div id="result-box"></div>
+
+</div>
+
+<script>
+    let userAnswers = {};
+
+    window.onload = function() {
+        // ১. আগে প্রশ্নগুলো শাফল করি
+        shuffleQuestions();
+        // ২. তারপর অপশনগুলো শাফল করি
+        shuffleOptions();
+    };
+
+    // --- প্রশ্ন শাফল করার ফাংশন ---
+    function shuffleQuestions() {
+        let list = document.getElementById("question-list");
+        let cards = Array.from(list.children);
+
+        // শাফল অ্যালগরিদম
+        for (let i = cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            list.appendChild(cards[j]); // DOM এ নতুন অর্ডারে বসাচ্ছি
+        }
+
+        // সিরিয়াল নম্বর ঠিক করা (যাতে ১, ২, ৩ সিরিয়াল ঠিক থাকে যদিও প্রশ্ন বদলে গেছে)
+        let allQuestions = document.getElementsByClassName("question-card");
+        for (let i = 0; i < allQuestions.length; i++) {
+            let numberSpan = allQuestions[i].querySelector(".q-no");
+            numberSpan.innerText = (i + 1); // ১ থেকে শুরু হবে
+        }
+    }
+
+    // --- অপশন শাফল করার ফাংশন ---
+    function shuffleOptions() {
+        let containers = document.getElementsByClassName("options-container");
+        for (let container of containers) {
+            let buttons = Array.from(container.children);
+            for (let i = buttons.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                container.appendChild(buttons[j]);
+            }
+        }
+    }
+
+    // --- সিলেকশন লজিক ---
+    function selectOption(btn) {
+        let container = btn.parentElement;
+        let card = container.parentElement;
+        let qId = card.id;
+
+        let allBtns = container.getElementsByClassName("option-btn");
+        for (let b of allBtns) b.classList.remove("selected");
+
+        btn.classList.add("selected");
+        userAnswers[qId] = btn.getAttribute("data-val");
+    }
+
+    // --- সাবমিট লজিক ---
+    function submitQuiz() {
+        let totalScore = 0;
+        let questionCards = document.getElementsByClassName("question-card");
+
+        for (let card of questionCards) {
+            let qId = card.id;
+            let correctVal = card.getAttribute("data-correct");
+            let userVal = userAnswers[qId];
+            let buttons = card.querySelectorAll(".option-btn");
+
+            for (let btn of buttons) {
+                btn.disabled = true;
+                btn.style.cursor = "default";
+                if (btn.getAttribute("data-val") === correctVal) {
+                    btn.classList.add("correct-answer");
+                }
+                if (userVal === btn.getAttribute("data-val") && userVal !== correctVal) {
+                    btn.classList.add("wrong-answer");
+                }
+            }
+            if (userVal === correctVal) totalScore++;
+        }
+
+        let resultBox = document.getElementById("result-box");
+        resultBox.style.display = "block";
+        resultBox.innerHTML = `আপনার স্কোর: ${totalScore} / ${questionCards.length}`;
+        document.querySelector(".submit-btn").style.display = "none";
+        
+        // রেজাল্ট দেখানোর পর স্ক্রল করে উপরে নিয়ে যাওয়া (অপশনাল)
+        resultBox.scrollIntoView({behavior: "smooth"});
+    }
+</script>
+
+</body>
+</html>
